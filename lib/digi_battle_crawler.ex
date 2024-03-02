@@ -1,6 +1,7 @@
 defmodule DigiBattleCrawler do
   use Crawly.Spider
   alias DigiBattleCrawler.DigimonParser, as: DigimonParser
+  alias DigiBattleCrawler.PowerOptionParser, as: PowerOptionParser
 
   @impl Crawly.Spider
   def base_url, do: "https://digi-battle.com"
@@ -20,15 +21,6 @@ defmodule DigiBattleCrawler do
   def parse_item(response) do
     {:ok, document} = Floki.parse_document(response.body)
 
-    items =
-      cond do
-        card_set_page?(response.request_url) ->
-          []
-
-        card_detail_page?(response.request_url) ->
-          [DigimonParser.parse(document)]
-      end
-
     requests =
       document
       |> Floki.find(".gallery a")
@@ -39,16 +31,29 @@ defmodule DigiBattleCrawler do
       end)
 
     %Crawly.ParsedItem{
-      :items => items,
+      :items => parse(document),
       :requests => requests
     }
   end
 
-  defp card_set_page?(request_url) do
-    request_url |> String.contains?("/Sets/")
+  defp parse(document) do
+    cond do
+      digimon_card?(document) ->
+        [DigimonParser.parse(document)]
+
+      power_option_card?(document) ->
+        [PowerOptionParser.parse(document)]
+
+      true ->
+        []
+    end
   end
 
-  defp card_detail_page?(request_url) do
-    request_url |> String.contains?("/Card/Details/")
+  defp digimon_card?(document) do
+    document |> Floki.find("#EnglishName") |> Enum.any?()
+  end
+
+  defp power_option_card?(document) do
+    document |> Floki.find("#EnglishPOName") |> Enum.any?()
   end
 end
