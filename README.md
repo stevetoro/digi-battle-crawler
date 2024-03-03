@@ -1,21 +1,13 @@
 # DigiBattleCrawler
 
-**TODO: Add description**
+An Elixir web crawler for Digimon Digi-Battle card game data.
 
-## Installation
+## Quickstart
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `digi_battle_crawler` to your list of dependencies in `mix.exs`:
+1. Clone and cd into this repository
+2. mkdir tmp && mkdir tmp/images
+3. iex -S mix run -e "Crawly.Engine.start_spider(DigiBattleCrawler)"
 
-```elixir
-def deps do
-  [
-    {:digi_battle_crawler, "~> 0.1.0"}
-  ]
-end
-```
+Wait for Crawly to do its thing and you'll find your card data and images in the `tmp` directory at the project root.
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/digi_battle_crawler>.
-
+I wrote this with Elixir 1.16. YMMV on another version of Elixir.
