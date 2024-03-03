@@ -4,7 +4,8 @@ defmodule DigiBattleCrawler.ImageDownloader do
     %HTTPoison.Response{body: body} =
       HTTPoison.get!(Crawly.Utils.build_absolute_url(url, @base_url))
 
-    image_path = Path.join([File.cwd!(), "tmp/images/#{card_number}.png"])
-    File.write!(image_path, body)
+    images_dir = Path.join([File.cwd!(), "tmp", "images"])
+    File.mkdir_p!(images_dir)
+    File.write!(Path.join([images_dir, "#{card_number}.png"]), body)
   end
 end
