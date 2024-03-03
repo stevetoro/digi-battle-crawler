@@ -1,7 +1,7 @@
 defmodule DigiBattleCrawler do
   use Crawly.Spider
-  alias DigiBattleCrawler.DigimonParser, as: DigimonParser
-  alias DigiBattleCrawler.PowerOptionParser, as: PowerOptionParser
+  alias DigiBattleCrawler.DigimonParser
+  alias DigiBattleCrawler.PowerOptionParser
 
   @impl Crawly.Spider
   def base_url, do: "https://digi-battle.com"

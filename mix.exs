@@ -22,7 +22,8 @@ defmodule DigiBattleCrawler.MixProject do
   defp deps do
     [
       {:crawly, "~> 0.16.0"},
-      {:floki, "~> 0.33.0"}
+      {:floki, "~> 0.33.0"},
+      {:httpoison, "~> 1.7"}
     ]
   end
 end
