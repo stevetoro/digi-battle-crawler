@@ -12,7 +12,11 @@ defmodule DigiBattleCrawler do
       start_urls: [
         "https://digi-battle.com/Sets/StarterSet",
         "https://digi-battle.com/Sets/BoosterSet1",
-        "https://digi-battle.com/Sets/BoosterSet2"
+        "https://digi-battle.com/Sets/BoosterSet2",
+        "https://digi-battle.com/Sets/StarterSetHoloChaseCards",
+        "https://digi-battle.com/Sets/MoviePromo",
+        "https://digi-battle.com/Sets/TacoBellPromo",
+        "https://digi-battle.com/Sets/FoxKidsPromo"
       ]
     ]
   end
