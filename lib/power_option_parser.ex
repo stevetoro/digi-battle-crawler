@@ -71,11 +71,11 @@ defmodule DigiBattleCrawler.PowerOptionParser do
   defp download_card_scan(
          %PowerOptionParser{
            card_image_url: card_image_url,
-           power_option: %{card_number: card_number}
+           power_option: %{card_set: card_set, card_number: card_number}
          } =
            parser
        ) do
-    ImageDownloader.download(card_image_url, card_number)
+    ImageDownloader.download(card_image_url, card_set, card_number)
     parser
   end
 end

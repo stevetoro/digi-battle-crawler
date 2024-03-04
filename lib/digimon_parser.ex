@@ -142,10 +142,13 @@ defmodule DigiBattleCrawler.DigimonParser do
   end
 
   defp download_card_scan(
-         %DigimonParser{card_image_url: card_image_url, digimon: %{card_number: card_number}} =
+         %DigimonParser{
+           card_image_url: card_image_url,
+           digimon: %{card_set: card_set, card_number: card_number}
+         } =
            parser
        ) do
-    ImageDownloader.download(card_image_url, card_number)
+    ImageDownloader.download(card_image_url, card_set, card_number)
     parser
   end
 end
