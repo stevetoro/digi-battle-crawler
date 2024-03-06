@@ -11,6 +11,7 @@ defmodule DigiBattleCrawler.DigimonParser do
               group: nil,
               level: nil,
               battle_type: nil,
+              digivolution_requirements: nil,
               attacks: %{red: nil, green: nil, yellow: nil},
               card_set: nil,
               card_type: nil,
@@ -36,6 +37,7 @@ defmodule DigiBattleCrawler.DigimonParser do
     |> parse_digimon_group()
     |> parse_digimon_level()
     |> parse_digimon_battle_type()
+    |> parse_digivolution_requirements()
     |> parse_digimon_attacks()
     |> parse_wide_table_attributes()
     |> parse_card_image_url()
@@ -90,6 +92,60 @@ defmodule DigiBattleCrawler.DigimonParser do
       |> String.replace("battle-type ", "")
 
     %DigimonParser{parser | digimon: %{digimon | battle_type: battle_type}}
+  end
+
+  defp parse_digivolution_requirements(
+         %DigimonParser{sidepane: sidepane, digimon: digimon} = parser
+       ) do
+    digivolution_requirements = sidepane |> Floki.find(".row.mb-2.p-0 li")
+
+    reqs =
+      cond do
+        digivolution_requirements |> contains_dna?() ->
+          digivolution_requirements |> parse_special_digivolution("DNA")
+
+        digivolution_requirements |> contains_armor?() ->
+          digivolution_requirements |> parse_special_digivolution("ARMOR")
+
+        true ->
+          digivolution_requirements |> parse_digivolution()
+      end
+
+    %DigimonParser{parser | digimon: %{digimon | digivolution_requirements: reqs}}
+  end
+
+  defp contains_dna?(requirements) do
+    requirements |> Floki.text() |> String.contains?("(DNA)")
+  end
+
+  defp contains_armor?(requirements) do
+    requirements |> Floki.text() |> String.contains?("(ARMOR)")
+  end
+
+  defp parse_special_digivolution(requirements, special) do
+    Enum.reduce(requirements, [], fn req, acc ->
+      [
+        req
+        |> Floki.text()
+        |> String.replace("(#{special}) - ", "")
+        |> String.trim()
+        |> String.split(" + ")
+        |> then(&["#{special}" | &1])
+        | acc
+      ]
+    end)
+  end
+
+  defp parse_digivolution(requirements) do
+    Enum.reduce(requirements, [], fn req, acc ->
+      [
+        req
+        |> Floki.text()
+        |> String.split("+")
+        |> Enum.map(&String.trim(&1))
+        | acc
+      ]
+    end)
   end
 
   defp parse_digimon_attacks(%DigimonParser{sidepane: sidepane, digimon: digimon} = parser) do
