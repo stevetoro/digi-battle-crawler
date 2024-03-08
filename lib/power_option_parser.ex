@@ -15,72 +15,84 @@ defmodule DigiBattleCrawler.PowerOptionParser do
             },
             card_image_url: nil
 
+  def parseable?(document) do
+    document |> Floki.find("#EnglishPOName") |> Enum.any?()
+  end
+
   def parse(document) do
     %PowerOptionParser{document: document}
-    |> parse_name()
-    |> parse_card_number()
-    |> parse_card_set()
-    |> parse_type()
-    |> parse_effect()
-    |> parse_restrictions()
-    |> parse_card_image_url()
-    |> download_card_scan()
-    |> then(fn p -> p.power_option end)
+    |> set_name
+    |> set_card_number
+    |> set_card_set
+    |> set_type
+    |> set_effect
+    |> set_restrictions
+    |> set_card_image_url
+    |> download_card_image
+    |> then(& &1.power_option)
   end
 
-  defp parse_name(%PowerOptionParser{document: document, power_option: power_option} = parser) do
-    name = document |> Floki.find("#EnglishPOName") |> Floki.text()
-    %PowerOptionParser{parser | power_option: %{power_option | name: name}}
+  defp set_name(%PowerOptionParser{document: document, power_option: power_option} = parser) do
+    document
+    |> Floki.find("#EnglishPOName")
+    |> Floki.text()
+    |> then(&%PowerOptionParser{parser | power_option: %{power_option | name: &1}})
   end
 
-  defp parse_card_number(
+  defp set_card_number(
          %PowerOptionParser{document: document, power_option: power_option} = parser
        ) do
-    card_number = document |> Floki.find(".serial-code") |> Floki.text()
-    %PowerOptionParser{parser | power_option: %{power_option | card_number: card_number}}
+    document
+    |> Floki.find(".serial-code")
+    |> Floki.text()
+    |> then(&%PowerOptionParser{parser | power_option: %{power_option | card_number: &1}})
   end
 
-  defp parse_card_set(%PowerOptionParser{document: document, power_option: power_option} = parser) do
-    card_set = document |> Floki.find("h5:fl-contains('Set:') a") |> Floki.text()
-    %PowerOptionParser{parser | power_option: %{power_option | card_set: card_set}}
+  defp set_card_set(%PowerOptionParser{document: document, power_option: power_option} = parser) do
+    document
+    |> Floki.find("h5:fl-contains('Set:') a")
+    |> Floki.text()
+    |> then(&%PowerOptionParser{parser | power_option: %{power_option | card_set: &1}})
   end
 
-  defp parse_type(%PowerOptionParser{document: document, power_option: power_option} = parser) do
-    type = document |> Floki.find("h5:fl-contains('Type:') span") |> Floki.text()
-    %PowerOptionParser{parser | power_option: %{power_option | type: type}}
+  defp set_type(%PowerOptionParser{document: document, power_option: power_option} = parser) do
+    document
+    |> Floki.find("h5:fl-contains('Type:') span")
+    |> Floki.text()
+    |> then(&%PowerOptionParser{parser | power_option: %{power_option | type: &1}})
   end
 
-  defp parse_effect(%PowerOptionParser{document: document, power_option: power_option} = parser) do
-    effect = document |> Floki.find("#EnglishPOEffect") |> Floki.text()
-    %PowerOptionParser{parser | power_option: %{power_option | effect: effect}}
+  defp set_effect(%PowerOptionParser{document: document, power_option: power_option} = parser) do
+    document
+    |> Floki.find("#EnglishPOEffect")
+    |> Floki.text()
+    |> then(&%PowerOptionParser{parser | power_option: %{power_option | effect: &1}})
   end
 
-  defp parse_restrictions(
+  defp set_restrictions(
          %PowerOptionParser{document: document, power_option: power_option} = parser
        ) do
-    restrictions =
-      document |> Floki.find("#EnglishRestrictions li") |> Enum.map(fn x -> Floki.text(x) end)
-
-    %PowerOptionParser{parser | power_option: %{power_option | restrictions: restrictions}}
+    document
+    |> Floki.find("#EnglishRestrictions li")
+    |> Enum.map(fn x -> Floki.text(x) end)
+    |> then(&%PowerOptionParser{parser | power_option: %{power_option | restrictions: &1}})
   end
 
-  defp parse_card_image_url(%PowerOptionParser{document: document} = parser) do
-    card_image_url = document |> Floki.find("#CardSmall") |> Floki.attribute("src") |> Enum.at(0)
-    %PowerOptionParser{parser | card_image_url: card_image_url}
+  defp set_card_image_url(%PowerOptionParser{document: document} = parser) do
+    document
+    |> Floki.find("#CardSmall")
+    |> Floki.attribute("src")
+    |> Floki.text()
+    |> then(&%PowerOptionParser{parser | card_image_url: &1})
   end
 
-  defp download_card_scan(
+  defp download_card_image(
          %PowerOptionParser{
            card_image_url: card_image_url,
            power_option: %{card_set: card_set, card_number: card_number} = power_option
-         } =
-           parser
+         } = parser
        ) do
-    ImageDownloader.download(card_image_url, card_set, card_number)
-
-    %PowerOptionParser{
-      parser
-      | power_option: %{power_option | card_image: "#{card_set}/#{card_number}.png"}
-    }
+    {:ok, image_location} = ImageDownloader.download(card_image_url, card_set, card_number)
+    %PowerOptionParser{parser | power_option: %{power_option | card_image: image_location}}
   end
 end
