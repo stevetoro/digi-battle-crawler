@@ -1,0 +1,2 @@
+defmodule DigiBattleCrawler do
+end
