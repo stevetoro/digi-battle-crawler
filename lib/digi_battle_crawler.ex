@@ -1,5 +1,6 @@
 defmodule DigiBattleCrawler do
   use Crawly.Spider
+  alias DigiBattleCrawler.DigimonParser
 
   @impl Crawly.Spider
   def base_url, do: "https://digi-battle.com"
@@ -29,8 +30,19 @@ defmodule DigiBattleCrawler do
       end)
 
     %Crawly.ParsedItem{
-      :items => [],
+      :items => parse(document),
       :requests => requests
     }
+  end
+
+  defp parse(document) do
+    cond do
+      digimon_card?(document) -> [DigimonParser.parse(document)]
+      true -> []
+    end
+  end
+
+  defp digimon_card?(document) do
+    document |> Floki.find("#EnglishName") |> Enum.any?()
   end
 end
