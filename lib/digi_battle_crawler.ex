@@ -1,6 +1,7 @@
 defmodule DigiBattleCrawler do
   use Crawly.Spider
   alias DigiBattleCrawler.DigimonParser
+  alias DigiBattleCrawler.PowerOptionParser
 
   @impl Crawly.Spider
   def base_url, do: "https://digi-battle.com"
@@ -38,11 +39,16 @@ defmodule DigiBattleCrawler do
   defp parse(document) do
     cond do
       digimon_card?(document) -> [DigimonParser.parse(document)]
+      power_option_card?(document) -> [PowerOptionParser.parse(document)]
       true -> []
     end
   end
 
   defp digimon_card?(document) do
     document |> Floki.find("#EnglishName") |> Enum.any?()
+  end
+
+  defp power_option_card?(document) do
+    document |> Floki.find("#EnglishPOName") |> Enum.any?()
   end
 end
