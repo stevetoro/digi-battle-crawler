@@ -1,4 +1,6 @@
 defmodule DigiBattleCrawler.DigimonParser do
+  alias DigiBattleCrawler.ImageDownloader
+
   def parse(document) do
     sidepane = parse_side_pane(document)
     wide_table = parse_wide_table(document)
@@ -12,6 +14,7 @@ defmodule DigiBattleCrawler.DigimonParser do
 
     name = sidepane |> Floki.find("#EnglishName") |> Floki.text()
     card_number = sidepane |> Floki.find(".serial-code") |> Floki.text()
+    card_image_url = document |> Floki.find("#CardSmall") |> Floki.attribute("src") |> Enum.at(0)
     group = sidepane |> Floki.find("#EnglishDescription") |> Floki.text()
     level = sidepane |> Floki.find("#EnglishDigimonLevel") |> Floki.text()
 
@@ -25,6 +28,8 @@ defmodule DigiBattleCrawler.DigimonParser do
 
     [red, green, yellow] =
       sidepane |> Floki.find(".row.w-100 > .col-12 div")
+
+    ImageDownloader.download(card_image_url, card_number)
 
     %{
       name: name,

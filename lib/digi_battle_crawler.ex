@@ -26,7 +26,8 @@ defmodule DigiBattleCrawler do
       |> Floki.find(".gallery a")
       |> Floki.attribute("href")
       |> Enum.map(fn url ->
-        Crawly.Utils.build_absolute_url(url, response.request_url)
+        url
+        |> Crawly.Utils.build_absolute_url(response.request_url)
         |> Crawly.Utils.request_from_url()
       end)
 
