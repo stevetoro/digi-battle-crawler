@@ -35,25 +35,21 @@ defmodule DigiBattleCrawler do
         |> Crawly.Utils.request_from_url()
       end)
 
+    items =
+      cond do
+        DigimonParser.parseable?(document) ->
+          [DigimonParser.parse(document)]
+
+        PowerOptionParser.parseable?(document) ->
+          [PowerOptionParser.parse(document)]
+
+        true ->
+          []
+      end
+
     %Crawly.ParsedItem{
-      :items => parse(document),
-      :requests => requests
+      :requests => requests,
+      :items => items
     }
-  end
-
-  defp parse(document) do
-    cond do
-      digimon_card?(document) -> [DigimonParser.parse(document)]
-      power_option_card?(document) -> [PowerOptionParser.parse(document)]
-      true -> []
-    end
-  end
-
-  defp digimon_card?(document) do
-    document |> Floki.find("#EnglishName") |> Enum.any?()
-  end
-
-  defp power_option_card?(document) do
-    document |> Floki.find("#EnglishPOName") |> Enum.any?()
   end
 end

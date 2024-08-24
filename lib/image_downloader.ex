@@ -7,5 +7,7 @@ defmodule DigiBattleCrawler.ImageDownloader do
     images_dir = Path.join([File.cwd!(), "tmp", "images", card_set])
     File.mkdir_p!(images_dir)
     File.write!(Path.join([images_dir, "#{card_number}.png"]), body)
+
+    {:ok, "#{card_set}/#{card_number}.png"}
   end
 end
