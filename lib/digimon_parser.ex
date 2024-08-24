@@ -22,7 +22,8 @@ defmodule DigiBattleCrawler.DigimonParser do
                 champion: nil,
                 ultimate: nil,
                 mega: nil
-              }
+              },
+              card_image: nil
             },
             card_image_url: nil
 
@@ -142,10 +143,13 @@ defmodule DigiBattleCrawler.DigimonParser do
   end
 
   defp download_card_scan(
-         %DigimonParser{card_image_url: card_image_url, digimon: %{card_number: card_number}} =
+         %DigimonParser{
+           card_image_url: card_image_url,
+           digimon: %{card_set: card_set, card_number: card_number} = digimon
+         } =
            parser
        ) do
-    ImageDownloader.download(card_image_url, card_number)
-    parser
+    ImageDownloader.download(card_image_url, card_set, card_number)
+    %DigimonParser{parser | digimon: %{digimon | card_image: "#{card_set}/#{card_number}.png"}}
   end
 end

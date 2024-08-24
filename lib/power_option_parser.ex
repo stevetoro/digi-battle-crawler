@@ -10,7 +10,8 @@ defmodule DigiBattleCrawler.PowerOptionParser do
               card_number: nil,
               type: nil,
               effect: nil,
-              restrictions: []
+              restrictions: [],
+              card_image: nil
             },
             card_image_url: nil
 
@@ -71,11 +72,15 @@ defmodule DigiBattleCrawler.PowerOptionParser do
   defp download_card_scan(
          %PowerOptionParser{
            card_image_url: card_image_url,
-           power_option: %{card_number: card_number}
+           power_option: %{card_set: card_set, card_number: card_number} = power_option
          } =
            parser
        ) do
-    ImageDownloader.download(card_image_url, card_number)
-    parser
+    ImageDownloader.download(card_image_url, card_set, card_number)
+
+    %PowerOptionParser{
+      parser
+      | power_option: %{power_option | card_image: "#{card_set}/#{card_number}.png"}
+    }
   end
 end
