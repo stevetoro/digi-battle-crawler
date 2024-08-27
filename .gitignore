@@ -24,3 +24,6 @@ digi_battle_crawler-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Gets re-created on compile.
+dets_simple_storage
